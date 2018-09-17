@@ -27,8 +27,6 @@ class ChatVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     displayTitle()
     hideTextbox()
     
-    
-    
     menuBtn.addTarget(self.revealViewController(),
                       action: #selector(SWRevealViewController.revealToggle(_:)),
                       for: .touchUpInside)
@@ -40,11 +38,20 @@ class ChatVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     NotificationCenter.default.addObserver(self, selector: #selector(ChatVC.channelSelected(_:)), name: NOTI_CHANNEL_SELECTED, object: nil)
     
-    SocketService.instance.getChatMessage { (success) in
-      if success {
+//    SocketService.instance.getChatMessage { (success) in
+//      if success {
+//        self.tableView.reloadData()
+//        self.scrollToBottom()
+//      }
+//    }
+    
+    SocketService.instance.getChatMessage { (newMessage) in
+      if newMessage.channelId == MessageService.instance.selectedChannel?._id && AuthService.instance.isLoggedIn {
+        MessageService.instance.messages.append(newMessage)
         self.tableView.reloadData()
         self.scrollToBottom()
       }
+      
     }
     
     SocketService.instance.getTypingUsers { (typingUsers) in

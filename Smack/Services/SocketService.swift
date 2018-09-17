@@ -3,7 +3,7 @@ import UIKit
 import SocketIO
 
 class SocketService: NSObject {
-
+  
   static let instance = SocketService()
   
   let manager: SocketManager
@@ -46,30 +46,22 @@ class SocketService: NSObject {
     completion(true)
   }
   
-  func getChatMessage(completion: @escaping CompletionHandler) {
+  func getChatMessage(completion: @escaping (_ newMessage: Message) -> Void) {
     socket.on("messageCreated") { (dataArray, ack) in
-
+      
       guard let channelId = dataArray[2] as? String else { return }
       
-      if channelId == MessageService.instance.selectedChannel?._id &&
-        AuthService.instance.isLoggedIn {
-        
-        guard let messageBody = dataArray[0] as? String else { return }
-        guard let userId = dataArray[1] as? String else { return }
-        guard let userName = dataArray[3] as? String else { return }
-        guard let userAvatar = dataArray[4] as? String else { return }
-        guard let userAvatarColor = dataArray[5] as? String else { return }
-        guard let id = dataArray[6] as? String else { return }
-        guard let timestamp = dataArray[7] as? String else { return }
-        
-        let newMessage = Message(_id: id, messageBody: messageBody, userId: userId, channelId: channelId, userName: userName, userAvatar: userAvatar, userAvatarColor: userAvatarColor, __v: 0, timeStamp: timestamp)
-        
-        MessageService.instance.messages.append(newMessage)
-        completion(true)
-      } else {
-        completion(false)
-      }
+      guard let messageBody = dataArray[0] as? String else { return }
+      guard let userId = dataArray[1] as? String else { return }
+      guard let userName = dataArray[3] as? String else { return }
+      guard let userAvatar = dataArray[4] as? String else { return }
+      guard let userAvatarColor = dataArray[5] as? String else { return }
+      guard let id = dataArray[6] as? String else { return }
+      guard let timestamp = dataArray[7] as? String else { return }
       
+      let newMessage = Message(_id: id, messageBody: messageBody, userId: userId, channelId: channelId, userName: userName, userAvatar: userAvatar, userAvatarColor: userAvatarColor, __v: 0, timeStamp: timestamp)
+      
+      completion(newMessage)
     }
     
   }
